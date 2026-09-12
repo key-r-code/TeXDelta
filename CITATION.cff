@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If TeXDelta helps your work, cite this software."
+title: TeXDelta
+type: software
+version: 0.1.0a0
+authors:
+  - name: key-r-code
+repository-code: "https://github.com/key-r-code/TeXDelta"
+license: MIT

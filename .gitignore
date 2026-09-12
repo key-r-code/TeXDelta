@@ -9,6 +9,9 @@ __pycache__/
 build/
 dist/
 texdelta-output/
+*-failed-logs/
+*-workdir/
+.test-artifacts/
 *.aux
 *.bbl
 *.blg
@@ -17,4 +20,5 @@ texdelta-output/
 *.log
 *.out
 *.pyz
+!examples/overleaf/texdelta.pyz
 .DS_Store
