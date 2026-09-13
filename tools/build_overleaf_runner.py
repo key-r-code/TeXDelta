@@ -12,6 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "src" / "texdelta"
+VENDORED_TOMLI = ROOT / "tools" / "vendor" / "tomli"
 EXAMPLE = ROOT / "examples" / "overleaf"
 RUNNER = EXAMPLE / "texdelta.pyz"
 TEMPLATE = SOURCE / "overleaf_template.zip"
@@ -42,17 +43,7 @@ def build_runner(destination: Path) -> None:
             "from texdelta.cli import main\nraise SystemExit(main())\n", encoding="utf-8"
         )
         shutil.copyfile(ROOT / "THIRD_PARTY_NOTICES.md", stage / "THIRD_PARTY_NOTICES.md")
-        try:
-            import tomli  # type: ignore[import-not-found]
-        except ModuleNotFoundError:
-            tomli = None
-        if tomli is not None:
-            package = Path(tomli.__file__).resolve().parent
-            shutil.copytree(
-                package,
-                stage / "tomli",
-                ignore=shutil.ignore_patterns("*.pyc", "__pycache__"),
-            )
+        shutil.copytree(VENDORED_TOMLI, stage / "tomli")
         _zip_tree(stage, destination)
 
 
