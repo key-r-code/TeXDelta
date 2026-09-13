@@ -1,0 +1,2 @@
+$force_mode = 1;
+$pdflatex = 'python3 texdelta.pyz diff Old/main.tex New/main.tex --output-dir texdelta-output --force && (cmp -s texdelta-output/diff.pdf main.pdf || cp texdelta-output/diff.pdf main.pdf) && printf "This is pdfTeX, Version 3.141592653-2.6-1.40.29 (preloaded format=pdflatex)\nOutput written on main.pdf (1 page).\n" > main.log && printf "PWD $PWD\nINPUT $PWD/main.tex\nOUTPUT $PWD/main.pdf\n" > main.fls && : %O %S';

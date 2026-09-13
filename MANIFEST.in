@@ -1,0 +1,7 @@
+recursive-include src/texdelta/templates *.tex
+recursive-include examples/overleaf *
+recursive-include docs *
+recursive-include tests *
+recursive-include tools *
+include schemas/report-v1.json
+include CHANGELOG.md CITATION.cff CODE_OF_CONDUCT.md CONTRIBUTING.md SECURITY.md THIRD_PARTY_NOTICES.md

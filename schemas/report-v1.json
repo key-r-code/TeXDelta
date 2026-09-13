@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/key-r-code/TeXDelta/schemas/report-v1.json",
+  "title": "TeXDelta report v1",
+  "type": "object",
+  "required": ["schema_version", "status", "texdelta_version", "fingerprint", "toolchain", "config", "stages", "figures", "diagnostics", "fallbacks", "outputs"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "status": {"enum": ["success", "failed", "cached"]},
+    "texdelta_version": {"type": "string"},
+    "fingerprint": {"type": "string"},
+    "toolchain": {"type": "object"},
+    "config": {"type": "object"},
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "status"],
+        "properties": {
+          "name": {"type": "string"},
+          "status": {"enum": ["success", "fallback", "failed"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "figures": {"type": "array", "items": {"type": "object"}},
+    "diagnostics": {"type": "array", "items": {"type": "string"}},
+    "fallbacks": {"type": "array", "items": {"type": "string"}},
+    "outputs": {"type": "object"}
+  },
+  "additionalProperties": false
+}

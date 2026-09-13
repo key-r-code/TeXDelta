@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Python ${{ matrix.python }} / ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.9", "3.11"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - uses: TeX-Live/setup-texlive-action@v4
+        with:
+          version: 2026
+          packages: >-
+            scheme-small
+            latexmk
+            latexdiff
+            latexpand
+            collection-bibtexextra
+            collection-fontsrecommended
+            collection-latexextra
+      - name: Install PDF inspection tools (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - name: Install PDF inspection tools (macOS)
+        if: runner.os == 'macOS'
+        run: brew install poppler
+      - name: Install
+        run: python -m pip install '.[dev]'
+      - name: Generate fixtures
+        run: python tools/generate_fixture_assets.py
+      - name: Tests and coverage
+        env:
+          RUN_VISUAL_SNAPSHOT: ${{ matrix.os == 'ubuntu-latest' && matrix.python == '3.11' && '1' || '0' }}
+        run: pytest
+      - name: Static checks
+        run: |
+          ruff check .
+          ruff format --check .
+          mypy src/texdelta
+      - name: Build runner and verify drift
+        run: python tools/build_overleaf_runner.py --check
+      - name: Build package
+        run: python -m build
+      - name: Installed-wheel smoke test
+        shell: bash
+        run: |
+          python -m venv "$RUNNER_TEMP/wheel-smoke"
+          "$RUNNER_TEMP/wheel-smoke/bin/python" -m pip install dist/*.whl
+          "$RUNNER_TEMP/wheel-smoke/bin/texdelta" --version
+          "$RUNNER_TEMP/wheel-smoke/bin/texdelta" init-overleaf "$RUNNER_TEMP/overleaf"
+      - name: Create demonstration artifact
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.11'
+        run: texdelta diff tests/fixtures/basic/old/main.tex tests/fixtures/basic/new/main.tex --output-dir .test-artifacts --rebuild
+      - uses: actions/upload-artifact@v4
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.11'
+        with:
+          name: texdelta-synthetic-demonstration
+          path: .test-artifacts/diff.pdf

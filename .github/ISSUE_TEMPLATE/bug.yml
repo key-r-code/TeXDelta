@@ -1,0 +1,34 @@
+name: Bug report
+description: Report a reproducible TeXDelta defect using non-confidential inputs
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not attach private manuscripts, credentials, or third-party figures.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Provide commands and, when possible, a minimal synthetic fixture.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include OS, Python version, TeXDelta version, and texdelta doctor output.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: Attach a redacted report.json and retained failure logs when safe.
