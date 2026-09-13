@@ -64,6 +64,11 @@ def build_template(destination: Path, runner: Path = RUNNER) -> None:
         _zip_tree(stage, destination)
 
 
+def _archive_contents(path: Path) -> dict[str, bytes]:
+    with zipfile.ZipFile(path) as archive:
+        return {name: archive.read(name) for name in archive.namelist() if not name.endswith("/")}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true", help="fail when committed files drift")
@@ -74,9 +79,17 @@ def main() -> int:
         build_runner(runner)
         if args.check:
             build_template(template, runner)
-            if not RUNNER.is_file() or RUNNER.read_bytes() != runner.read_bytes():
+            if not RUNNER.is_file() or _archive_contents(RUNNER) != _archive_contents(runner):
                 raise SystemExit("examples/overleaf/texdelta.pyz is out of date")
-            if not TEMPLATE.is_file() or TEMPLATE.read_bytes() != template.read_bytes():
+            if not TEMPLATE.is_file():
+                raise SystemExit("src/texdelta/overleaf_template.zip is out of date")
+            committed_template = _archive_contents(TEMPLATE)
+            generated_template = _archive_contents(template)
+            if committed_template.get("texdelta.pyz") != RUNNER.read_bytes():
+                raise SystemExit("Packaged template contains a stale Overleaf runner")
+            committed_template.pop("texdelta.pyz", None)
+            generated_template.pop("texdelta.pyz", None)
+            if committed_template != generated_template:
                 raise SystemExit("src/texdelta/overleaf_template.zip is out of date")
         else:
             build_template(template)
