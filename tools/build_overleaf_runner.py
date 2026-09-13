@@ -48,7 +48,11 @@ def build_runner(destination: Path) -> None:
             tomli = None
         if tomli is not None:
             package = Path(tomli.__file__).resolve().parent
-            shutil.copytree(package, stage / "tomli")
+            shutil.copytree(
+                package,
+                stage / "tomli",
+                ignore=shutil.ignore_patterns("*.pyc", "__pycache__"),
+            )
         _zip_tree(stage, destination)
 
 
