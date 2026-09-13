@@ -20,14 +20,14 @@ EPOCH = (1980, 1, 1, 0, 0, 0)
 
 def _zip_tree(source: Path, destination: Path, prefix: str = "") -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
-    with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+    with zipfile.ZipFile(destination, "w", zipfile.ZIP_STORED) as archive:
         for path in sorted(source.rglob("*")):
             if not path.is_file() or path == destination:
                 continue
             relative = Path(prefix) / path.relative_to(source)
             info = zipfile.ZipInfo(relative.as_posix(), EPOCH)
             info.external_attr = (0o644 & 0xFFFF) << 16
-            archive.writestr(info, path.read_bytes(), compress_type=zipfile.ZIP_DEFLATED)
+            archive.writestr(info, path.read_bytes(), compress_type=zipfile.ZIP_STORED)
 
 
 def build_runner(destination: Path) -> None:
